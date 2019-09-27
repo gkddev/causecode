@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CHAT</title>
+</head>
+<body>
+    <h1>CHAT APPLICATION</h1>
+    <p id="firstname">first name:</p>
+    <p id="lastname">last name:</p>
+    <hr />
+    <div id="friends_list">
+
+    </div>
+    <hr />
+    <form method='post' action='/find_one'><input type='text' name='email' placeholder='email'><input type='submit' name='submit'></form>
+    <!-- <form action="/find_one" method="post">
+        <p>to find ,if your friend is on this platform or not</p>
+        <input type="text" name="email" placeholder="friends_email">
+        <input type="submit" name="submit"  >
+    </form> -->
+    <form action="/add_one" method="post">
+        <p>To add a friend to your list</p>
+        <input type="text" name="friends_email" placeholder="friends_email">
+        <input type="submit" name="submit" value="find One" >
+    </form>
+    <form action='/logout' method='post'><input type='submit' value='logout'></form>
+    <script type="text/javascript" src="/dashboard/dashboard.js"></script>
+
+</body>
+</html>
