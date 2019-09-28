@@ -1,4 +1,3 @@
-alert('wow');
 
 let friends_list=document.getElementById("friends_list");
 friends_list.innerHTML+="<p>wow</p>"
@@ -27,39 +26,5 @@ function friends_list_to_Received () {
      alert(JSON.stringify(friends_list_received));
     });
 }
-
-  function checksignin(){
-    beforelogin.style.display="block";
-    afterlogin.style.display="none";
-    return fetchpromise(window.localStorage)
-    .then(response => response.json())
-      .then(checkresponsedata => {
-        console.log("here responsedata is"+(JSON.stringify(checkresponsedata)));
-        return Promise.resolve((checkresponsedata));
-      });
-  }
-  function makechanges()
-  {
-  checksignin()
-  .then(tochange => {
-  
-      console.log(JSON.stringify(tochange.EMAIL));
-      if(tochange.success==true){
-        beforelogin.style.display="none";
-        afterlogin.style.display="block";
-        nameafterlogin.innerHTML = tochange.FIRSTNAME;
-        passvalues=tochange;
-      }
-      else{
-        if(tochange.success==false){
-            beforelogin.style.display="block";
-        afterlogin.style.display="none";
-         console.log("false");
-        }
-      }
-    
-  });
-  }
-  
   
   friends_list_to_Received();

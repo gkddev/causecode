@@ -38,7 +38,7 @@ var sessionStore = new MySQLStore(
     }/* session store options */, db);
 app.use(morgan('tiny'));
 var values={
-    PORT:process.env.PORT||4000
+    PORT:process.env.PORT||4001
 }
 // create application/json parser
 var jsonParser = bodyParser.json()
@@ -58,7 +58,7 @@ app.use(session({
             }));
 
 var checkdata=(req,res,next)=>{
-    console.log('inside checkdata'+JSON.stringify(req.session)+"with session is"+req.session.id);
+    // console.log('inside checkdata'+JSON.stringify(req.session)+"with session is"+req.session.id);
 
     if(req.session)
     {
@@ -72,7 +72,8 @@ var checkdata=(req,res,next)=>{
             {
                 if(session)
                 {
-                    console.log('session is '+session+'with session id is'+req.session.id)
+                    // console.log('session is '+session+'with session id is'+req.session.id)
+                    // console.log('session id is '+req.session.id);
                     res.redirect('/dashboard');
                 }
                 else
@@ -129,17 +130,31 @@ var checklogin=(req,res,next)=>{
     }
  
 }
-app.post('/find_one',(req,res)=>{
-    console.log('inside new find one'+JSON.stringify(req.body))
+
+app.post('/change_password',urlencodedParser,(req,res)=>{
+    const {password,email}=req.body;
+    var hashedPassword = bcrypt.hashSync(password, 8);
+    var sql = `update  realchat.user set password ='${hashedPassword}' WHERE email = '${email}'`;
+    var query = db.query(sql, (err, result,field) => 
+    {
+        if(err)
+        {
+            res.send("error in changing password"+err.message);
+        }
+        else
+        {
+            res.send("changed successfully");
+        }
+    }); 
 })
 
-app.post('/find_one_ew',(req,res)=>{
-    console.log('req body inside findone'+JSON.stringify(req.body))
-    console.log("email inside findone"+email);
+app.post('/find_one',urlencodedParser,(req,res)=>{
+    const {email} =req.body;
+    console.log('email is inside find one'+email)
     var sql = `SELECT email,iduser FROM realchat.user WHERE email = '${email}'`;
     var query = db.query(sql, (err, result,field) => 
     {
-        // console.log("data send"+sql);
+    
         if(err)
         {
             console.log("not success with an error"+err.message);    
@@ -186,32 +201,67 @@ app.post('/find_one_ew',(req,res)=>{
                  
         }
     }); 
-})
+});
 
-app.post('/add_one',(req,res)=>{
-    var sql = `SELECT email,iduser FROM realchat.user WHERE email = '${req.body.email}'`;
-    var query = db.query(sql, (err, result,field) => 
-    {
-        // console.log("data send"+sql);
-        if(err)
-        {
-            console.log("not success with an error"+err.message);    
-            var abc=
-            {
+// app.post('/getlist',(req,res)=>{
+//     email=req.session.email
+//     var sql = `SELECT friends FROM realchat.user WHERE email = '${email}'`;
+//     var query = db.query(sql, (err, result,field) => 
+//     {
+//          console.log("data send"+sql);
+//         if(err)
+//         {
+//             console.log("not success with an error"+err.message);    
+//             var abc=
+//             {
                 
-                "success":false,
-                "Found":false
-            }
-            res.json(abc);
-            res.end();
-        }
-        else
-        {   if(result[0])
-            {
-                console.log(`found data ${JSON.stringify(result[0])}`);
-                var rows=JSON.parse(JSON.stringify(result[0]));
-                // ------------------------------------------------------------------------------------------------------------------------------------------------
-                var sql = `SELECT iduser,email,friends FROM mysampledb.cart WHERE email = '${req.session.email}'`;
+//                 "success":false,
+//                 "Found":false
+//             }
+//             res.json(abc);
+//             res.end();
+//         }
+//         else
+//         {   if(result[0])
+//             {
+//                 console.log(`found data ${JSON.stringify(result[0])}`);
+//                 var rows=JSON.parse(JSON.stringify(result[0]));
+               
+
+//                     var abc=
+//                     {
+                       
+//                         "success":true,
+//                         "friends_list":rows
+//                     }
+//                     console.log("Success");
+                  
+                    
+//              res.json(abc).end();
+               
+              
+//             }
+//             else
+//             {
+//                 console.log("no user");
+//                 var abc=
+//                     {
+//                         "success":false
+//                     }
+//                     res.json(abc);
+
+//                     res.end();
+//             }
+                 
+//         }
+//     }); 
+// });
+// --------------------------------------------------------------------------------------------------------------------------------
+app.post(["/add_one"],urlencodedParser, function (req, res) 
+{   let friends_email=req.body.friends_email;
+    let email=req.session.email;
+
+    var sql = `SELECT iduser,friends,email FROM realchat.user WHERE email = '${email}'`;
     var query = db.query(sql, (err, result,field) => 
     {
         if(err)
@@ -230,40 +280,23 @@ app.post('/add_one',(req,res)=>{
         {    if(result[0])
             {
                 var rows=JSON.parse(JSON.stringify(result[0]));
-                console.log("ajax call for product success");
+               let p=0;
          
-                var productjson=JSON.parse(JSON.stringify(rows.cartjson));
-               
-                console.log(`rows[0] is here ${JSON.stringify(rows)} with id of product is ${JSON.stringify((rows.id))} and productjson is ${productjson} `);
-                console.log("once again parsing result is"+JSON.parse(productjson));
-                var parsedproductjson=JSON.parse(productjson);
-                console.log(parsedproductjson.product[0]);
-                
-                console.log(parsedproductjson);
-                console.log("path is---------------------------------"+req.path);
-                // if(req.path="/changequantity"){
-                //     console.log("yes inside changequantity");
-                //     var count=Object.keys(parsedproductjson.product).length;
-                //     console.log("count is"+count);
-                //     let i=0;
-                //     for( i=0;i<count;i++){
-                //     //    console.log(parsedproductjson.product[i].id) ;
-                //         if(parsedproductjson.product[i].id==req.body.id){
-                //             console.log("id is"+req.body.id);
-                //             console.log("quantity is"+req.body.quantity)
-                //             parsedproductjson.product[i].quantity=req.body.quantity;
-                //         }
-                //     }
-                // }
-                // if(req.path="/addtocart")
-                {
+                var productjson=JSON.parse(JSON.stringify(rows.friends));
+               console.log(JSON.stringify(productjson));
+                console.log(`rows[0] is here ${JSON.stringify(rows)} with id of product is ${JSON.stringify((rows.iduser))} and productjson is ${productjson} `);
+            
+                // console.log("once again parsing result is"+JSON.stringify(productjson));
+                var parsedproductjson=JSON.stringify(productjson);
 
+                if(req.path="/add_one"){
+          
                     var count=Object.keys(parsedproductjson.product).length;
-                    console.log("count is"+count);
-                    let i=0,p=0;
+                  
+                    let i=0;
                     for( i=0;i<count;i++){
                     //    console.log(parsedproductjson.product[i].id) ;
-                        if(parsedproductjson.product[i].id==req.body.id){
+                        if(parsedproductjson.friends[i].email==req.body.friends_email){
                             p=1;
                             var abc=
                             {
@@ -275,21 +308,19 @@ app.post('/add_one',(req,res)=>{
                             res.end();
                         }
                     }
+                
+            }
                     if(p==0){
-                              parsedproductjson.product.push({
-                            "email":email
+                              parsedproductjson.friends.push({
+                            "email":friends_email
                         
                         });
                     }
-                }
-               
-        console.log("new json data"+(rows[0]));
+                
+       
         var wow=JSON.stringify(parsedproductjson);
         console.log("wow is here"+wow);
-        let sql = `UPDATE mysampledb.cart SET cartjson = '${wow}' WHERE userid = '${userid}'`;
-        // let sql = `UPDATE mysampledb.wishlist SET wishlistjson = '${wishlistjson}' WHERE userid = '${userid}'`;
-        // var query1=db.query(`INSERT INTO mysampledb.cart (cartjson) VALUES ('${JSON.stringify()}') WHERE userid=${userid}`, (err,results)=>
-        // var query1=db.query('INSERT INTO mysampledb.cart SET ?',[detailsnew] , (err,result) => 
+        let sql = `UPDATE realchat.user SET friends = '${wow}' WHERE email = '${email}'`;
         let query1 = db.query(sql, (err, result) =>
         {
             if(err)
@@ -324,12 +355,10 @@ app.post('/add_one',(req,res)=>{
                 
                     
                     
-                    "product":
+                    "friends":
                     [
                         {
-                            "id":req.body.id,
-                            "quantity":req.body.quantity,
-                            "productName":req.body.productName
+                            "email":friends_email
                           
                         }
 
@@ -337,8 +366,7 @@ app.post('/add_one',(req,res)=>{
                 }
                 var detailsnew=JSON.stringify(details);
                 console.log("new json data"+(detailsnew));
-                var query1=db.query(`INSERT INTO mysampledb.cart (userid, cartjson) VALUES ('${userid}','${detailsnew}')`, (err,results)=>
-                // var query1=db.query('INSERT INTO mysampledb.cart SET ?',[detailsnew] , (err,result) => 
+                var query1=db.query(`INSERT INTO realchat.user (email, friends) VALUES ('${email}','${detailsnew}')`, (err,results)=>
                 {
                     if(err)
                     {
@@ -365,76 +393,10 @@ app.post('/add_one',(req,res)=>{
                 
         }
     }); 
-                // ------------------------------------------------------------------------------------------------------------------------------------------------
-            }
-            else
-            {
-                console.log("no user");
-                var abc=
-                    {
-                        "success":false
-                    }
-                    res.json(abc);
-
-                    res.end();
-            }
-                 
-        }
-    }); 
-})
-app.post('/getlist',(req,res)=>{
-    email=req.session.email
-    var sql = `SELECT friends FROM realchat.user WHERE email = '${email}'`;
-    var query = db.query(sql, (err, result,field) => 
-    {
-        // console.log("data send"+sql);
-        if(err)
-        {
-            console.log("not success with an error"+err.message);    
-            var abc=
-            {
-                
-                "success":false,
-                "Found":false
-            }
-            res.json(abc);
-            res.end();
-        }
-        else
-        {   if(result[0])
-            {
-                console.log(`found data ${JSON.stringify(result[0])}`);
-                var rows=JSON.parse(JSON.stringify(result[0]));
-               
-
-                    var abc=
-                    {
-                       
-                        "success":true,
-                        "friends_list":rows
-                    }
-                    console.log("Success");
-                  
-                    
-             res.json(abc).end();
-               
-              
-            }
-            else
-            {
-                console.log("no user");
-                var abc=
-                    {
-                        "success":false
-                    }
-                    res.json(abc);
-
-                    res.end();
-            }
-                 
-        }
-    }); 
-})
+    
+    
+});
+// --------------------------------------------------------------------------------------------------------------------------------
 app.get('/',(req,res)=>{
     console.log(process.env.PORT);
     console.log(values.PORT);
@@ -442,7 +404,7 @@ app.get('/',(req,res)=>{
     res.end();
 })
 app.get('/login',checkdata,(req,res)=>{
-    res.send("<h1>CHAT APPLICATION:></h1><br><br><h2>Login</h2><br><form method='POST' action='/login'><input type='text' name='email' placeholder='email'><input type='password' name='password' placeholder='password'><input type='submit' name='submit'></form> <a href='/login'>login</a><br> <a href='/signup'>signup</a><br>  <a href='/'>home</a> ");
+    res.send("<h1>CHAT APPLICATION:></h1><br><br><h2>Login</h2><br><form method='POST' action='/login'><input type='text' name='email' placeholder='email'><input type='password' name='password' placeholder='password'><input type='submit' name='submit'></form>  <form action='/change_password' method='post'><input type='text' name='email' placeholder='enter email to change password'><input type='password' name='password'> <input type='submit' value='change_password'></form> <a href='/login'>login</a><br> <a href='/signup'>signup</a><br>  <a href='/'>home</a> ");
     res.end();
 })
 app.get('/signup',checkdata,(req,res)=>{
@@ -463,7 +425,7 @@ app.get('/404',(req,res)=>{
 
 app.post("/login",urlencodedParser,checkdata, function (req, res) 
 {
-     console.log(`req came from form to login with body ${JSON.stringify(req.body)}`);
+    //  console.log(`req came from form to login with body ${JSON.stringify(req.body)}`);
     let email=req.body.email;
     let password=req.body.password;
     var sql = `SELECT * FROM realchat.user WHERE email = '${email}'`;
@@ -485,7 +447,7 @@ app.post("/login",urlencodedParser,checkdata, function (req, res)
         else
         {   if(result[0])
             {
-                console.log(`found data ${JSON.stringify(result[0])}`);
+                // console.log(`found data ${JSON.stringify(result[0])}`);
                 var rows=JSON.parse(JSON.stringify(result[0]));
                 if(bcrypt.compareSync(password, rows.password)==true)
                 {

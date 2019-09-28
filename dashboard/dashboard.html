@@ -15,18 +15,14 @@
 
     </div>
     <hr />
-    <form method='post' action='/find_one'><input type='text' name='email' placeholder='email'><input type='submit' name='submit'></form>
-    <!-- <form action="/find_one" method="post">
-        <p>to find ,if your friend is on this platform or not</p>
-        <input type="text" name="email" placeholder="friends_email">
-        <input type="submit" name="submit"  >
-    </form> -->
+    <form method='post' action='/find_one'><input type='text' name='email' placeholder='email'><input type='submit' name='submit' value="findone"></form>
     <form action="/add_one" method="post">
         <p>To add a friend to your list</p>
         <input type="text" name="friends_email" placeholder="friends_email">
-        <input type="submit" name="submit" value="find One" >
+        <input type="submit" name="submit" value="add One" >
     </form>
     <form action='/logout' method='post'><input type='submit' value='logout'></form>
+    
     <script type="text/javascript" src="/dashboard/dashboard.js"></script>
 
 </body>
