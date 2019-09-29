@@ -106,7 +106,7 @@ var checklogin=(req,res,next)=>{
             }
             else
             {
-                if(session)
+                if(1)
                 {
                     console.log('session is '+JSON.stringify(session)+'with session email is'+req.session.email)
                     next()
@@ -117,10 +117,9 @@ var checklogin=(req,res,next)=>{
                     res.redirect('/login')
                 }
             }
-            // console.log("Session is"+JSON.stringify(session));
-        })
-        // console.log('next'+req.session.email);
      
+        })
+
 
     }
     else
@@ -203,59 +202,59 @@ app.post('/find_one',urlencodedParser,(req,res)=>{
     }); 
 });
 
-// app.post('/getlist',(req,res)=>{
-//     email=req.session.email
-//     var sql = `SELECT friends FROM realchat.user WHERE email = '${email}'`;
-//     var query = db.query(sql, (err, result,field) => 
-//     {
-//          console.log("data send"+sql);
-//         if(err)
-//         {
-//             console.log("not success with an error"+err.message);    
-//             var abc=
-//             {
+app.post('/getlist',(req,res)=>{
+    email=req.session.email
+    var sql = `SELECT friends_email,email FROM realchat.friends WHERE email = '${email}'`;
+    var query = db.query(sql, (err, result,field) => 
+    {
+      
+        if(err)
+        {
+            console.log("not success with an error"+err.message);    
+            var abc=
+            {
                 
-//                 "success":false,
-//                 "Found":false
-//             }
-//             res.json(abc);
-//             res.end();
-//         }
-//         else
-//         {   if(result[0])
-//             {
-//                 console.log(`found data ${JSON.stringify(result[0])}`);
-//                 var rows=JSON.parse(JSON.stringify(result[0]));
+                "success":false,
+                "Found":false
+            }
+            res.json(abc);
+            res.end();
+        }
+        else
+        {   if(result[0])
+            {
+                console.log(`found data ${JSON.stringify(result[0])}`);
+                var rows=JSON.parse(JSON.stringify(result[0]));
                
 
-//                     var abc=
-//                     {
+                    var abc=
+                    {
                        
-//                         "success":true,
-//                         "friends_list":rows
-//                     }
-//                     console.log("Success");
+                        "success":true,
+                        "friends_email":rows.friends_email
+                    }
+                    console.log("Success");
                   
                     
-//              res.json(abc).end();
+             res.json(abc).end();
                
               
-//             }
-//             else
-//             {
-//                 console.log("no user");
-//                 var abc=
-//                     {
-//                         "success":false
-//                     }
-//                     res.json(abc);
+            }
+            else
+            {
+       
+                var abc=
+                    {
+                        "success":false
+                    }
+                    res.json(abc);
 
-//                     res.end();
-//             }
+                    res.end();
+            }
                  
-//         }
-//     }); 
-// });
+        }
+    }); 
+});
 // --------------------------------------------------------------------------------------------------------------------------------
 app.post(["/add_one","/changequantity"], urlencodedParser,function (req, res) 
 {   

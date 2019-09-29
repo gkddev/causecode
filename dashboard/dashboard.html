@@ -14,6 +14,12 @@
     <div id="friends_list">
 
     </div>
+    <div id="count">
+
+    </div>
+    <div id="cartview">
+
+    </div>
     <hr />
     <form method='post' action='/find_one'><input type='text' name='email' placeholder='email'><input type='submit' name='submit' value="findone"></form>
     <form action="/add_one" method="post">
@@ -24,6 +30,59 @@
     <form action='/logout' method='post'><input type='submit' value='logout'></form>
     
     <script type="text/javascript" src="/dashboard/dashboard.js"></script>
+    <script>
+    
+        var searchall=()=>{
+        
+        
+            return fetch("/getlist", {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, cors, *same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json",
+                // "Content-Type": "application/x-www-form-urlencoded",
+            },
+            redirect: "follow", // manual, *follow, error
+            referrer: "no-referrer" // no-referrer, *client
+            // body: JSON.stringify(userdetail)
+             // body logindata type must match "Content-Type" header
+        
+        })
+            
+                .then(response => response.json())
+                .then(checkresponsedata => {
+                  
+                        console.log("here responsedata is"+(JSON.stringify(checkresponsedata)));
+      
+                        var count = Object.keys(checkresponsedata).length;
+                        console.log("so length of checkresponse for products is "+count);
+                        document.getElementById('friends_list').innerHTML = ``;
+                        // document.getElementById('friends_list').innerHTML = `here is your cart ${JSON.stringify(checkresponsedata[0].email)}!!`;
+                        var a=(JSON.parse(JSON.stringify(checkresponsedata.friends_email)));
+                        var x=JSON.parse(a);
+                        console.log("checkresponsedata[0].friends_email is"+checkresponsedata.friends_email);     
+                        var count = Object.keys(x.friends_list).length;
+                          console.log("so length of checkresponse for friends is "+count);
+                          document.getElementById('count').innerHTML=`number of product available in your cart is ${count}`;
+                      var i=0;
+                      document.getElementById('cartview').innerHTML = ``; 
+                      for(i=0;i<count;i++)
+                      {
 
+document.getElementById('cartview').innerHTML+=`  <div class="product">${(x.friends_list[i]).email}</div><div></div>`;                                  
+                      }
+                                                 
+                });
+                
+        }
+       
+      
+       
+   
+        window.onload=searchall();
+    
+          </script>
 </body>
 </html>

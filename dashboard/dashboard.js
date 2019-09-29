@@ -28,3 +28,4 @@ function friends_list_to_Received () {
 }
   
   friends_list_to_Received();
+  document.onload=friends_list_to_Received()
