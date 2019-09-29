@@ -1,0 +1,24 @@
+app.post(["/add_one"],urlencodedParser, function (req, res) 
+{   let friends_email=req.body.friends_email;
+    let email=req.session.email;
+ console.log("friends email is "+friends_email)
+ console.log("your email is"+email)
+    var sql = `SELECT friends,email FROM realchat.user WHERE email = '${email}'`;
+    var query = db.query(sql, (err, result,field) => 
+    {
+        if(err)
+        {
+            console.log('eror'+err.message)
+            res.end("no updation");
+        }
+        if(result[0])
+        {
+            
+         
+    var a=(result[0].friends);
+           console.log(a)
+            res.end(`asas ${a}`);
+        }
+
+    });
+});

@@ -1,0 +1,95 @@
+app.post(["/add_one"],urlencodedParser, function (req, res) 
+{   let friends_email=req.body.friends_email;
+    let email=req.session.email;
+
+    var sql = `SELECT friends FROM realchat.user WHERE email = '${email}'`;
+    var query = db.query(sql, (err, result,field) => 
+    {
+        if(err)
+        {
+            console.log("no userid found so unsuccess with an error"+err.message);    
+            var abc=
+            {
+                
+                "success":false
+            }
+           
+            res.json(abc);
+            res.end();
+        }
+        else
+        {    if(result[0])
+            {
+                console.log((result[0]));
+                if((result[0]).friends==null)
+                {
+                    console.log('yes it is null');
+                }
+                var rows=JSON.parse(JSON.stringify(result[0]));
+               let p=0;
+         
+                var friendsjson=JSON.parse(JSON.stringify(rows.friends));
+               console.log(JSON.stringify(friendsjson));
+                // console.log(`rows[0] is here ${JSON.stringify(rows)} with id of friends is ${JSON.stringify((rows.iduser))} and friendsjson is ${friendsjson} `);
+            
+                // console.log("once again parsing result is"+JSON.stringify(friendsjson));
+                var parsedfriendsjson=JSON.stringify(friendsjson);
+                
+            if((result[0]).friends==null){
+                console.log('nothing inside friends');
+                 parsedfriendsjson={
+                    "friends":
+                    [
+                        {
+                            "email":friends_email
+                          
+                        }
+
+                    ]
+                }
+            }
+            else
+            {
+             
+                console.log("something insdie friends"+parsedfriendsjson.friends[0]);
+                parsedfriendsjson.friends.push({
+                    "email":friends_email
+                
+                });
+            }
+       
+        var wow=JSON.stringify(parsedfriendsjson);
+        console.log("wow is here"+wow);
+        let sql = `UPDATE realchat.user SET friends = '${wow}' WHERE email = '${email}'`;
+        let query1 = db.query(sql, (err, result) =>
+        {
+            if(err)
+            {
+                console.log("error"+err.message);
+                let signupresponsejson=
+                {
+                    "success" : false,
+                    "update":false
+                }
+                res.json(signupresponsejson);
+                res.end();
+            }
+            else
+            {  console.log("success in adding category");
+                let signupresponsejson=
+                {
+                    "success" : true,
+                    "update":true
+                }
+                res.json(signupresponsejson);
+                res.end();
+            }
+        });
+                
+            }
+                
+        }
+    }); 
+    
+    
+});

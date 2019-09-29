@@ -38,7 +38,7 @@ var sessionStore = new MySQLStore(
     }/* session store options */, db);
 app.use(morgan('tiny'));
 var values={
-    PORT:process.env.PORT||4001
+    PORT:process.env.PORT||4000
 }
 // create application/json parser
 var jsonParser = bodyParser.json()
@@ -58,11 +58,11 @@ app.use(session({
             }));
 
 var checkdata=(req,res,next)=>{
-    // console.log('inside checkdata'+JSON.stringify(req.session)+"with session is"+req.session.id);
+    // console.log('inside checkdata'+JSON.stringify(req.session)+"with session is"+req.session.email);
 
     if(req.session)
     {
-        sessionStore.get(req.session.id, (error,session)=>{
+        sessionStore.get(req.session.email, (error,session)=>{
             if(error)
             {
                 console.log("error in store get"+error.message);
@@ -72,8 +72,8 @@ var checkdata=(req,res,next)=>{
             {
                 if(session)
                 {
-                    // console.log('session is '+session+'with session id is'+req.session.id)
-                    // console.log('session id is '+req.session.id);
+                    // console.log('session is '+session+'with session email is'+req.session.email)
+                    // console.log('session email is '+req.session.email);
                     res.redirect('/dashboard');
                 }
                 else
@@ -84,7 +84,7 @@ var checkdata=(req,res,next)=>{
             }
             // console.log("Session is"+JSON.stringify(session));
         })
-        // console.log('next'+req.session.id);
+        // console.log('next'+req.session.email);
      
 
     }
@@ -95,10 +95,10 @@ var checkdata=(req,res,next)=>{
     }
 }
 var checklogin=(req,res,next)=>{
-    console.log('insidechecklogin'+JSON.stringify(req.session)+"with session is"+req.session.id);
+    console.log('insidechecklogin'+JSON.stringify(req.session)+"with session is"+req.session.email);
     if(req.session)
     {
-        sessionStore.get(req.session.id, (error,session)=>{
+        sessionStore.get(req.session.email, (error,session)=>{
             if(error)
             {
                 console.log("error in store get"+error.message);
@@ -108,7 +108,7 @@ var checklogin=(req,res,next)=>{
             {
                 if(session)
                 {
-                    console.log('session is '+JSON.stringify(session)+'with session id is'+req.session.id)
+                    console.log('session is '+JSON.stringify(session)+'with session email is'+req.session.email)
                     next()
                 }
                 else
@@ -119,7 +119,7 @@ var checklogin=(req,res,next)=>{
             }
             // console.log("Session is"+JSON.stringify(session));
         })
-        // console.log('next'+req.session.id);
+        // console.log('next'+req.session.email);
      
 
     }
@@ -257,16 +257,17 @@ app.post('/find_one',urlencodedParser,(req,res)=>{
 //     }); 
 // });
 // --------------------------------------------------------------------------------------------------------------------------------
-app.post(["/add_one"],urlencodedParser, function (req, res) 
-{   let friends_email=req.body.friends_email;
+app.post(["/add_one","/changequantity"], urlencodedParser,function (req, res) 
+{   
+    let friends_email=req.body.friends_email;
     let email=req.session.email;
 
-    var sql = `SELECT iduser,friends,email FROM realchat.user WHERE email = '${email}'`;
+    var sql = `SELECT email,friends_email FROM realchat.friends WHERE email = '${email}'`;
     var query = db.query(sql, (err, result,field) => 
     {
         if(err)
         {
-            console.log("no userid found so unsuccess with an error"+err.message);    
+            console.log("no email found so unsuccess with an error"+err.message);    
             var abc=
             {
                 
@@ -280,23 +281,39 @@ app.post(["/add_one"],urlencodedParser, function (req, res)
         {    if(result[0])
             {
                 var rows=JSON.parse(JSON.stringify(result[0]));
-               let p=0;
+    
          
-                var productjson=JSON.parse(JSON.stringify(rows.friends));
-               console.log(JSON.stringify(productjson));
-                console.log(`rows[0] is here ${JSON.stringify(rows)} with id of product is ${JSON.stringify((rows.iduser))} and productjson is ${productjson} `);
-            
-                // console.log("once again parsing result is"+JSON.stringify(productjson));
-                var parsedproductjson=JSON.stringify(productjson);
-
-                if(req.path="/add_one"){
-          
-                    var count=Object.keys(parsedproductjson.product).length;
-                  
+                var friends_listjson=JSON.parse(JSON.stringify(rows.friends_email));
+               
+                // console.log(`rows[0] is here ${JSON.stringify(rows)} with email of friends_list is ${JSON.stringify((rows.email))} and friends_listjson is ${friends_listjson} `);
+                // console.log("once again parsing result is"+JSON.parse(friends_listjson));
+                var parsedfriends_listjson=JSON.parse(friends_listjson);
+                console.log(parsedfriends_listjson.friends_list[0]);
+                
+                console.log(parsedfriends_listjson);
+                // console.log("path is---------------------------------"+req.path);
+                if(req.path="/changequantity"){
+                    console.log("yes inside changequantity");
+                    var count=Object.keys(parsedfriends_listjson.friends_list).length;
+                    console.log("count is"+count);
                     let i=0;
                     for( i=0;i<count;i++){
-                    //    console.log(parsedproductjson.product[i].id) ;
-                        if(parsedproductjson.friends[i].email==req.body.friends_email){
+                    //    console.log(parsedfriends_listjson.friends_list[i].email) ;
+                        if(parsedfriends_listjson.friends_list[i].email==req.body.email){
+                            console.log("email is"+req.body.email);
+                            console.log("quantity is"+req.body.quantity)
+                            parsedfriends_listjson.friends_list[i].quantity=req.body.quantity;
+                        }
+                    }
+                }
+                if(req.path="/add_one"){
+                    console.log("yes inside changequantity");
+                    var count=Object.keys(parsedfriends_listjson.friends_list).length;
+                    console.log("count is"+count);
+                    let i=0,p=0;
+                    for( i=0;i<count;i++){
+                    //    console.log(parsedfriends_listjson.friends_list[i].email) ;
+                        if(parsedfriends_listjson.friends_list[i].email==friends_email){
                             p=1;
                             var abc=
                             {
@@ -308,19 +325,18 @@ app.post(["/add_one"],urlencodedParser, function (req, res)
                             res.end();
                         }
                     }
-                
-            }
                     if(p==0){
-                              parsedproductjson.friends.push({
+                              parsedfriends_listjson.friends_list.push({
                             "email":friends_email
                         
                         });
                     }
-                
-       
-        var wow=JSON.stringify(parsedproductjson);
+                }
+               
+        // console.log("new json data"+(rows[0]));
+        var wow=JSON.stringify(parsedfriends_listjson);
         console.log("wow is here"+wow);
-        let sql = `UPDATE realchat.user SET friends = '${wow}' WHERE email = '${email}'`;
+        let sql = `UPDATE realchat.friends SET friends_email = '${wow}' WHERE email = '${email}'`;
         let query1 = db.query(sql, (err, result) =>
         {
             if(err)
@@ -355,7 +371,7 @@ app.post(["/add_one"],urlencodedParser, function (req, res)
                 
                     
                     
-                    "friends":
+                    "friends_list":
                     [
                         {
                             "email":friends_email
@@ -366,7 +382,8 @@ app.post(["/add_one"],urlencodedParser, function (req, res)
                 }
                 var detailsnew=JSON.stringify(details);
                 console.log("new json data"+(detailsnew));
-                var query1=db.query(`INSERT INTO realchat.user (email, friends) VALUES ('${email}','${detailsnew}')`, (err,results)=>
+                var query1=db.query(`INSERT INTO realchat.friends (email, friends_email) VALUES ('${email}','${detailsnew}')`, (err,results)=>
+ 
                 {
                     if(err)
                     {
@@ -393,7 +410,8 @@ app.post(["/add_one"],urlencodedParser, function (req, res)
                 
         }
     }); 
-    
+    // ======================================= 
+    console.log(req.body);
     
 });
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -535,7 +553,7 @@ var query1=db.query('INSERT INTO realchat.user SET ?',createuser , (err,result) 
 });
 app.post('/logout',checklogin,(req,res)=>{
     
-    sessionStore.destroy(req.session.id, (error)=>{
+    sessionStore.destroy(req.session.email, (error)=>{
         if(error)
         {
             console.log('error'+error.message)
